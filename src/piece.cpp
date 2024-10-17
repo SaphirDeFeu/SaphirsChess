@@ -1,5 +1,7 @@
 #include"piece.hpp"
 
+using std::vector;
+
 Piece::Piece(Piece::Type _type, Piece::Color _color) {
   this->type = _type;
   this->color = _color;
@@ -39,4 +41,32 @@ unsigned char Piece::getUCIRepresentation() {
   if(this->color == Piece::Color::WHITE) code -= ('a'-'A');
 
   return code;
+}
+
+unsigned char Square::fromVec(vector<char> const &vec) {
+  if(vec.size() < 2) return 0;
+  
+  unsigned char row = vec.at(1) - '1';
+  unsigned char col = vec.at(0) - 'a';
+  
+  if(row < 0 || row > 7) return 0;
+  if(col < 0 || col > 7) return 0;
+
+  return (row << 3) + col;
+}
+
+vector<char> Square::fromByte(unsigned char const &byte) {
+  vector<char> vec = vector<char>();
+  vec.push_back('-');
+  if(byte == 0) return vec;
+
+  char row = ((byte & 0b111000) >> 3) + '1';
+  char col = (byte & 0b111) + 'a';
+
+  if(col < 'a' || col > 'h') return vec;
+  if(row < '1' || row > '8') return vec;
+
+  vec.at(0) = col;
+  vec.push_back(row);
+  return vec;
 }

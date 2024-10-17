@@ -1,3 +1,5 @@
+#include<vector>
+
 class Piece {
   public:
   enum Type {
@@ -24,3 +26,8 @@ class Piece {
   Color color = Color::WHITE;
 
 };
+
+namespace Square {
+  std::vector<char> fromByte(unsigned char const &byte);
+  unsigned char fromVec(std::vector<char> const &vec);
+}
