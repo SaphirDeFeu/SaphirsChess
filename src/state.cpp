@@ -115,6 +115,59 @@ State::~State() noexcept {
   delete[] (this->castle_rights);
 }
 
+string State::to_fen_string() const noexcept {
+  string fen = "";
+
+  int index = 56;
+  while(true) {
+    Piece piece = this->board[index];
+    unsigned char _ucir = piece.get_uci_representation();
+    
+    if(_ucir == '-') {
+      int start = index;
+      for(int whitespaces = 1; whitespaces <= 8; whitespaces++) {
+        index++;
+        unsigned char tmp = this->board[index].get_uci_representation();
+        if(tmp != '-' || (index % 8 == 0 && start != index)) {
+          fen += ((char) whitespaces) + '0';
+          index--;
+          break;
+        }
+      }
+    }
+
+    if(_ucir != '-') fen += _ucir;
+
+    if(index % 8 == 7) {
+      index -= 16;
+      if(index < -1) break;
+      fen += '/';
+    }
+
+    index++;
+  }
+
+  if(this->ply_player == Piece::Color::WHITE) fen += " w ";
+  else fen += " b ";
+
+  string tmp_castling = "";
+  if(this->castle_rights[0] == true) tmp_castling += 'K';
+  if(this->castle_rights[1] == true) tmp_castling += 'Q';
+  if(this->castle_rights[2] == true) tmp_castling += 'k';
+  if(this->castle_rights[3] == true) tmp_castling += 'q';
+  
+  if(tmp_castling.empty()) fen += '-';
+  else fen += tmp_castling + ' ';
+
+  vector<char> vec_c = Square::from_byte(this->en_passant);
+  string s(vec_c.begin(), vec_c.end());
+  fen += s + ' ';
+
+  fen += std::to_string(this->halfmove) + ' ' + std::to_string(this->fullmove);
+
+  return fen;
+}
+
 Piece* State::get_board() const noexcept {
   return this->board;
 }
