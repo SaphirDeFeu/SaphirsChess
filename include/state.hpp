@@ -1,6 +1,8 @@
 #include<string>
 #include"piece.hpp"
 
+const std::string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 class State {
   public:
   State(std::string const& fen_string) noexcept;
@@ -23,5 +25,3 @@ class State {
   unsigned short halfmove = 0;
   unsigned int fullmove = 1;
 };
-
-const std::string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

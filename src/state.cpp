@@ -46,7 +46,7 @@ State::State(string const& fen_string) noexcept {
     if(current_character >= '1' && current_character <= '8') { // we're tracking a number
       int num = current_character - '0'; // int conversion (trust me bro)
       for(int i = 0; i < num; i++) {
-        this->board[index] = Piece('-');
+        this->board[index] = Piece();
         index++;
       }
       string_index++;
