@@ -102,6 +102,8 @@ State::State(string const& fen_string) noexcept {
     tmp.push_back(row);
     unsigned char sq = Square::from_vec(tmp);
     this->en_passant = sq;
+  } else {
+    this->en_passant = Square::from_vec(vector<char>('-'));
   }
 
   unsigned short halfmoves = static_cast<unsigned short>(std::stoul(stages.at(4)));
