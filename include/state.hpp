@@ -4,6 +4,7 @@
 class State {
   public:
   State(std::string const& fen_string) noexcept;
+  State() noexcept : State(STARTING_POSITION_FEN) {};
   ~State() noexcept;
   std::string to_fen_string() const noexcept;
 

@@ -19,7 +19,7 @@ class Piece {
 
   Piece(Type _type, Color _color) noexcept;
   Piece(unsigned char _ucir) noexcept;
-  Piece() noexcept;
+  Piece() noexcept : Piece(Type::NUL, Color::WHITE) {};
   unsigned char get_uci_representation() const noexcept;
 
   private:

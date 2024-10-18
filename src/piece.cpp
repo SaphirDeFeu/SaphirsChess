@@ -26,11 +26,6 @@ Piece::Piece(unsigned char _ucir) noexcept {
   }
 }
 
-Piece::Piece() noexcept {
-  this->type = Piece::Type::NUL;
-  this->color = Piece::Color::WHITE;
-}
-
 unsigned char Piece::get_uci_representation() const noexcept {
   unsigned char code = '-';
   switch(this->type) {
