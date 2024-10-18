@@ -1,15 +1,15 @@
 #include<iostream>
 #include<vector>
 #include<string>
-#include"piece.hpp"
+
+#include"state.hpp"
 
 int main() {
-  std::vector<char> vec = std::vector<char>();
-  vec.push_back('c');
-  vec.push_back('6');
-  unsigned char c = Square::fromVec(vec);
-  std::vector<char> t = Square::fromByte(c);
-  std::string s(t.begin(), t.end());
-  std::cout << s << std::endl;
+  State state(STARTING_POSITION_FEN);
+  Piece* board = state.get_board();
+  for(int i = 0; i < 64; i++) {
+    std::cout << board[i].get_uci_representation() << std::endl;
+    if(i % 8 == 7) std::cout << "/" << std::endl;
+  }
   return 0;
 }

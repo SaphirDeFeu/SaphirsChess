@@ -2,12 +2,12 @@
 
 using std::vector;
 
-inline Piece::Piece(Piece::Type _type, Piece::Color _color) noexcept {
+Piece::Piece(Piece::Type _type, Piece::Color _color) noexcept {
   this->type = _type;
   this->color = _color;
 }
 
-inline Piece::Piece(unsigned char _ucir) noexcept {
+Piece::Piece(unsigned char _ucir) noexcept {
   if(_ucir == '-') return;
 
   if('a' <= _ucir && _ucir <= 'z') {
@@ -26,7 +26,12 @@ inline Piece::Piece(unsigned char _ucir) noexcept {
   }
 }
 
-inline unsigned char Piece::get_uci_representation() const noexcept {
+Piece::Piece() noexcept {
+  this->type = Piece::Type::NUL;
+  this->color = Piece::Color::WHITE;
+}
+
+unsigned char Piece::get_uci_representation() const noexcept {
   unsigned char code = '-';
   switch(this->type) {
     case Piece::Type::PAWN: code = 'p'; break;
@@ -43,7 +48,7 @@ inline unsigned char Piece::get_uci_representation() const noexcept {
   return code;
 }
 
-inline unsigned char Square::from_vec(vector<char> const &vec) noexcept {
+unsigned char Square::from_vec(vector<char> const &vec) noexcept {
   if(vec.size() < 2) return 0;
   
   unsigned char row = vec.at(1) - '1';
@@ -55,7 +60,7 @@ inline unsigned char Square::from_vec(vector<char> const &vec) noexcept {
   return (row << 3) + col;
 }
 
-inline vector<char> Square::from_byte(unsigned char const &byte) noexcept {
+vector<char> Square::from_byte(unsigned char const &byte) noexcept {
   vector<char> vec = vector<char>();
   vec.push_back('-');
   if(byte == 0) return vec;

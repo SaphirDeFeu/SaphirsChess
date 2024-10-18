@@ -17,9 +17,10 @@ class Piece {
     WHITE = 0b0000,
   };
 
-  inline Piece(Type _type, Color _color) noexcept;
-  inline Piece(unsigned char _ucir) noexcept;
-  inline unsigned char get_uci_representation() const noexcept;
+  Piece(Type _type, Color _color) noexcept;
+  Piece(unsigned char _ucir) noexcept;
+  Piece() noexcept;
+  unsigned char get_uci_representation() const noexcept;
 
   private:
   Type type = Type::NUL;
@@ -28,8 +29,8 @@ class Piece {
 };
 
 namespace Square {
-  inline std::vector<char> from_byte(unsigned char const &byte) noexcept;
-  inline unsigned char from_vec(std::vector<char> const &vec) noexcept;
+  std::vector<char> from_byte(unsigned char const &byte) noexcept;
+  unsigned char from_vec(std::vector<char> const &vec) noexcept;
 
   const unsigned char NULL_SQUARE = 0;
 }
