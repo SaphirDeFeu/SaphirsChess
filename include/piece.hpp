@@ -32,5 +32,5 @@ namespace Square {
   std::vector<char> from_byte(unsigned char const &byte) noexcept;
   unsigned char from_vec(std::vector<char> const &vec) noexcept;
 
-  const unsigned char NULL_SQUARE = 0;
+  const unsigned char NULL_SQUARE = 0b1000000;
 }
