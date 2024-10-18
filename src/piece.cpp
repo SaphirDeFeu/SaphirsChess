@@ -49,13 +49,13 @@ unsigned char Piece::get_uci_representation() const noexcept {
 }
 
 unsigned char Square::from_vec(vector<char> const &vec) noexcept {
-  if(vec.size() < 2) return 0;
+  if(vec.size() < 2) return 0b1000000;
   
   unsigned char row = vec.at(1) - '1';
   unsigned char col = vec.at(0) - 'a';
   
-  if(row < 0 || row > 7) return 0;
-  if(col < 0 || col > 7) return 0;
+  if(row < 0 || row > 7) return 0b1000000;
+  if(col < 0 || col > 7) return 0b1000000;
 
   return (row << 3) + col;
 }
@@ -63,7 +63,7 @@ unsigned char Square::from_vec(vector<char> const &vec) noexcept {
 vector<char> Square::from_byte(unsigned char const &byte) noexcept {
   vector<char> vec = vector<char>();
   vec.push_back('-');
-  if(byte == 0) return vec;
+  if(byte == 0b1000000) return vec;
 
   char row = ((byte & 0b111000) >> 3) + '1';
   char col = (byte & 0b111) + 'a';
