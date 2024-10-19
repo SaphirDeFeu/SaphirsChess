@@ -43,6 +43,14 @@ unsigned char Piece::get_uci_representation() const noexcept {
   return code;
 }
 
+Piece::Type Piece::get_type() const noexcept {
+  return this->type;
+}
+
+Piece::Color Piece::get_color() const noexcept {
+  return this->color;
+}
+
 unsigned char Square::from_vec(vector<char> const &vec) noexcept {
   if(vec.size() < 2) return 0b1000000;
   

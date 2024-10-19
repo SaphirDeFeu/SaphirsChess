@@ -22,6 +22,9 @@ class Piece {
   Piece() noexcept : Piece(Type::NUL, Color::WHITE) {};
   unsigned char get_uci_representation() const noexcept;
 
+  Type get_type() const noexcept;
+  Color get_color() const noexcept;
+
   private:
   Type type = Type::NUL;
   Color color = Color::WHITE;
