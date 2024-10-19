@@ -17,7 +17,9 @@ string Board::get_fen() const noexcept {
 }
 
 string Board::display() const noexcept {
-  string s = "+---+---+---+---+---+---+---+---+\n";
+  string s;
+  s += "  a   b   c   d   e   f   g   h\n";
+  s += "+---+---+---+---+---+---+---+---+\n";
   int index = 56;
 
   for(int _ = 0; _ < 64; _++) {
@@ -30,7 +32,9 @@ string Board::display() const noexcept {
 
     if(index % 8 == 7) {
       index -= 16;
-      s += "|\n+---+---+---+---+---+---+---+---+\n";
+      s += "| ";
+      s += static_cast<char>((index + 1) / 8) + '2';
+      s += "\n+---+---+---+---+---+---+---+---+\n";
       if(index < -1) break;
     }
 
