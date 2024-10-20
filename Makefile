@@ -1,3 +1,5 @@
+.PHONY: docs
+
 CXX = g++
 CXXFLAGS = -Wall -Werror -I../include
 
@@ -11,3 +13,6 @@ main: src/main.cpp src/piece.cpp src/state.cpp
 run:
 	make
 	./build/saphirschess.exe
+
+docs:
+	@doxygen Doxyfile

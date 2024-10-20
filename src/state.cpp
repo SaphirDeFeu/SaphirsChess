@@ -6,7 +6,7 @@
 using std::string;
 using std::vector;
 
-inline vector<string> split_string(string const& str, char delimiter) {
+inline vector<string> split_string(const string& str, char delimiter) {
   vector<string> result;
   std::stringstream ss(str);
   string item;
@@ -18,7 +18,7 @@ inline vector<string> split_string(string const& str, char delimiter) {
   return result;
 };
 
-State::State(string const& fen_string) noexcept {
+State::State(const string& fen_string) noexcept {
   if(fen_string.empty())
     return;
   
