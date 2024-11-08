@@ -65,7 +65,7 @@ class State {
    * @return A pointer to the first element in this board
    * @note The array ALWAYS has a length of 64 items
    */
-  Piece* get_board() const noexcept;
+  Piece::piece* get_board() const noexcept;
 
   /**
    * @brief Getter for this object's \ref State::ply_player "ply_player" attribute
@@ -135,7 +135,7 @@ class State {
   /**
    * @brief The board object. An array of pieces of length 64. Heap-allocated upon construction. Deallocated upon destruction.
    */
-  Piece* board;
+  Piece::piece* board;
   /**
    * @brief The player whose turn it is to play. A single number. Stack-allocated.
    */

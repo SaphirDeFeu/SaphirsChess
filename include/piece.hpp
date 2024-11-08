@@ -1,7 +1,7 @@
 #include<vector>
 
 /**
- * @brief Class used to interpret and store individual piece data.
+ * @brief Namespaced used to interpret and clear piece data.
  * \code {.cpp}
  * Piece piece();
  * \endcode
@@ -10,8 +10,10 @@
  * @see Piece::Piece()
  * @see Piece::Piece(unsigned char _ucir)
  */
-class Piece {
-  public:
+
+namespace Piece {
+  using piece = unsigned char;
+
   enum Type {
     /// @brief A `null` type - Equivalent to `-` or ` ` (numeric value: `0`)
     NUL    = 0b000,
@@ -39,63 +41,76 @@ class Piece {
   /**
    * @brief Creates a piece of type `_type` and color `_color`
    * \code {.cpp}
-   * Piece piece(Piece::Type::PAWN, Piece::Color::WHITE); // creates a white pawn
+   * Piece::piece piece = make(Piece::Type::PAWN, Piece::Color::WHITE); // creates a white pawn
    * \endcode
    * 
    * @param _type  a `Piece::Type` value, represents this piece's type
    * @param _color a `Piece::Color` value, represents this piece's color
    */
-  Piece(Type _type, Color _color) noexcept;
+  piece make(Type _type, Color _color) noexcept;
 
   /**
    * @brief Creates a piece of type \ref Piece::Type::NUL "Type::NUL" and of color \ref Piece::Color::WHITE "Color::WHITE"
    * \code {.cpp}
-   * Piece piece(); // creates a null piece
+   * Piece::piece piece = make(); // creates a null piece
    * \endcode
    * 
    * @overload
    */
-  inline Piece() noexcept : Piece(Type::NUL, Color::WHITE) {};
+  piece make() noexcept;
 
   /**
    * @brief Creates a piece from its corresponding UCI representation
    * \code {.cpp}
-   * Piece piece('q'); // creates a black queen
+   * Piece::piece piece = make('q'); // creates a black queen
    * \endcode
    * 
    * @param _ucir The piece's UCI representation, with any character `pnbrqk` being its type, and its color being UPPERCASE=WHITE and LOWERCASE=BLACK. Can be `-` if null.
    * `_ucir` can be any letter in the string `pnbrqk` - `p`=pawn, `n`=knight, `b`=bishop, `r`=rook, `q`=queen, `k`=king. Making it uppercase renders it a white piece
+   * 
+   * @overload
    */
-  Piece(unsigned char _ucir) noexcept;
+  piece make(unsigned char _ucir) noexcept;
 
   /**
    * @brief Gets the piece's representation according to UCI (or, the representation within a FEN string)
    * \code {.cpp}
-   * piece.get_uci_representation(); // for a null piece, returns '-'
+   * get_uci_representation(piece); // for a null piece, returns '-'
    * \endcode
+   * 
+   * @param _p A \ref Piece::piece
    * 
    * @return Any character in `-pnbrqk` according to this piece's type (uppercase if the piece is white)
    */
-  unsigned char get_uci_representation() const noexcept;
+  char get_uci_representation(const piece& _p) noexcept;
 
   /**
    * @brief Gets the piece's type
+   * @param _p A \ref Piece::piece
    * @return \ref Piece::Type "A Type value"
    */
-  Type get_type() const noexcept;
+  Type get_type(const piece& _p) noexcept;
 
   /**
    * @brief Gets the piece's color
+   * @param _p A \ref Piece::piece
    * @return \ref Piece::Color "A Color value"
    */
-  Color get_color() const noexcept;
+  Color get_color(const piece& _p) noexcept;
 
-  private:
-  /// @brief This piece's \ref Piece::Type "Type"
-  Type type = Type::NUL;
-  /// @brief This piece's \ref Piece::Color "Color"
-  Color color = Color::WHITE;
+  /**
+   * @brief Sets a piece's color
+   * @param _p A \ref Piece::piece "piece"
+   * @param type A piece \ref Piece::Type "Type"
+   */
+  void set_type(piece& _p, Type type) noexcept;
 
+  /**
+   * @brief Sets a piece's color
+   * @param _p A \ref Piece::piece "piece"
+   * @param type A piece \ref Piece::Color "Color"
+   */
+  void set_color(piece& _p, Color color) noexcept;
 };
 
 namespace Square {

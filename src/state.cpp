@@ -22,7 +22,7 @@ State::State(const string& fen_string) noexcept {
   if(fen_string.empty())
     return;
   
-  this->board = new Piece[64];
+  this->board = new Piece::piece[64];
   this->castle_rights = new bool[4];
   castle_rights[0] = false;
   castle_rights[1] = false;
@@ -46,7 +46,7 @@ State::State(const string& fen_string) noexcept {
     if(current_character >= '1' && current_character <= '8') { // we're tracking a number
       int num = current_character - '0'; // int conversion (trust me bro)
       for(int i = 0; i < num; i++) {
-        this->board[index] = Piece();
+        this->board[index] = Piece::make();
         index++;
       }
       string_index++;
@@ -71,7 +71,7 @@ State::State(const string& fen_string) noexcept {
       default: type = Piece::Type::NUL; break;
     };
 
-    this->board[index] = Piece(type, color);
+    this->board[index] = Piece::make(type, color);
 
     index++;
     string_index++;
@@ -122,14 +122,14 @@ string State::to_fen_string() const noexcept {
 
   int index = 56;
   while(true) {
-    Piece piece = this->board[index];
-    unsigned char _ucir = piece.get_uci_representation();
+    Piece::piece piece = this->board[index];
+    unsigned char _ucir = Piece::get_uci_representation(piece);
     
     if(_ucir == '-') {
       int start = index;
       for(int whitespaces = 1; whitespaces <= 8; whitespaces++) {
         index++;
-        unsigned char tmp = this->board[index].get_uci_representation();
+        unsigned char tmp = Piece::get_uci_representation(this->board[index]);
         if(tmp != '-' || (index % 8 == 0 && start != index)) {
           fen += ((char) whitespaces) + '0';
           index--;
@@ -170,7 +170,7 @@ string State::to_fen_string() const noexcept {
   return fen;
 }
 
-Piece* State::get_board() const noexcept {
+Piece::piece* State::get_board() const noexcept {
   return this->board;
 }
 

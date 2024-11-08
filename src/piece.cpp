@@ -2,33 +2,42 @@
 
 using std::vector;
 
-Piece::Piece(Piece::Type _type, Piece::Color _color) noexcept {
-  this->type = _type;
-  this->color = _color;
+Piece::piece Piece::make(Piece::Type _type, Piece::Color _color) noexcept {
+  Piece::piece _p = 0;
+  _p |= static_cast<unsigned char>(_type);
+  _p |= static_cast<unsigned char>(_color);
+
+  return _p;
 }
 
-Piece::Piece(unsigned char _ucir) noexcept {
-  if(_ucir == '-') return;
+Piece::piece Piece::make(unsigned char _ucir) noexcept {
+  if(_ucir == '-') return 0;
+
+  Piece::piece _p = 0;
 
   if('a' <= _ucir && _ucir <= 'z') {
     _ucir = (unsigned char) (((int) _ucir) - 32);
-    this->color = Piece::Color::BLACK;
+    Piece::set_color(_p, Piece::Color::BLACK);
   };
 
   switch(_ucir) {
-    case 'P': this->type = Piece::Type::PAWN; break;
-    case 'N': this->type = Piece::Type::KNIGHT; break;
-    case 'B': this->type = Piece::Type::BISHOP; break;
-    case 'R': this->type = Piece::Type::ROOK; break;
-    case 'Q': this->type = Piece::Type::QUEEN; break;
-    case 'K': this->type = Piece::Type::KING; break;
+    case 'P': Piece::set_type(_p, Piece::Type::PAWN); break;
+    case 'N': Piece::set_type(_p, Piece::Type::KNIGHT); break;
+    case 'B': Piece::set_type(_p, Piece::Type::BISHOP); break;
+    case 'R': Piece::set_type(_p, Piece::Type::ROOK); break;
+    case 'Q': Piece::set_type(_p, Piece::Type::QUEEN); break;
+    case 'K': Piece::set_type(_p, Piece::Type::KING); break;
     default: break;
   }
+
+  return _p;
 }
 
-unsigned char Piece::get_uci_representation() const noexcept {
-  unsigned char code = '-';
-  switch(this->type) {
+Piece::piece Piece::make() noexcept { return make(Type::NUL, Color::WHITE); }
+
+char Piece::get_uci_representation(const Piece::piece& _p) noexcept {
+  char code = '-';
+  switch(Piece::get_type(_p)) {
     case Piece::Type::PAWN: code = 'p'; break;
     case Piece::Type::KNIGHT: code = 'n'; break;
     case Piece::Type::BISHOP: code = 'b'; break;
@@ -38,17 +47,27 @@ unsigned char Piece::get_uci_representation() const noexcept {
     default: return code; break;
   }
 
-  if(this->color == Piece::Color::WHITE) code -= ('a'-'A');
+  if(Piece::get_color(_p) == Piece::Color::WHITE) code -= ('a'-'A');
 
   return code;
 }
 
-Piece::Type Piece::get_type() const noexcept {
-  return this->type;
+Piece::Type Piece::get_type(const Piece::piece& _p) noexcept {
+  return static_cast<Piece::Type>(_p & 0b111);
 }
 
-Piece::Color Piece::get_color() const noexcept {
-  return this->color;
+Piece::Color Piece::get_color(const Piece::piece& _p) noexcept {
+  return static_cast<Piece::Color>(_p & 0b1000);
+}
+
+void Piece::set_type(Piece::piece& _p, Piece::Type type) noexcept {
+  _p &= 0b000;
+  _p |= static_cast<unsigned char>(type);
+}
+
+void Piece::set_color(Piece::piece& _p, Piece::Color color) noexcept {
+  _p &= 0b0111;
+  _p |= static_cast<unsigned char>(color);
 }
 
 unsigned char Square::from_vec(vector<char> const &vec) noexcept {

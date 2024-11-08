@@ -23,7 +23,7 @@ string Board::display() const noexcept {
   int index = 56;
 
   for(int _ = 0; _ < 64; _++) {
-    unsigned char _ucir = this->state->get_board()[index].get_uci_representation();
+    char _ucir = Piece::get_uci_representation(this->state->get_board()[index]);
 
     if(_ucir == '-') _ucir = ' ';
     s += "| ";
@@ -67,7 +67,7 @@ unsigned short Movement::from_uci(const string& _ucir) noexcept {
   unsigned short us = 0;
   us = us | Square::from_vec(origin);
   us = us | Square::from_vec(target) << 6;
-  us = us | Piece(arr[4]).get_type() << 12;
+  us = us | Piece::get_type(Piece::make(arr[4])) << 12;
 
   return us;
 }
@@ -83,7 +83,7 @@ string Movement::from_u16(const unsigned short& _us) noexcept {
 
   vector<char> o = Square::from_byte(static_cast<unsigned char>(origin));
   vector<char> t = Square::from_byte(static_cast<unsigned char>(target));
-  unsigned char p = Piece(promotion_type, Piece::Color::BLACK).get_uci_representation();
+  char p = Piece::get_uci_representation(Piece::make(promotion_type, Piece::Color::BLACK));
 
   s += string(o.begin(), o.end());
   s += string(t.begin(), t.end());
