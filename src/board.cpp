@@ -47,7 +47,35 @@ string Board::display() const noexcept {
   return s;
 }
 
-unsigned short Movement::from_uci(const string& _ucir) noexcept {
+void Board::make_move(const Movement::move& _m) noexcept {
+  unsigned char start = _m & 0b111111;
+  unsigned char target = (_m >> 6) & 0b111111;
+  unsigned char promotion = (_m >> 12) & 0b111;
+
+  taken_pieces.push_back(this->state->get_board()[target]);
+  this->state->get_board()[target] = this->state->get_board()[start];
+  this->state->get_board()[start] = Piece::_NULL;
+  Piece::Type _p_type = static_cast<Piece::Type>(promotion);
+  if(_p_type != Piece::Type::NUL) Piece::set_type(this->state->get_board()[target], static_cast<Piece::Type>(promotion));
+
+  moves.push_back(_m);
+}
+
+void Board::unmake_move() noexcept {
+  Movement::move _m = moves.at(moves.size() - 1);
+  unsigned char start = _m & 0b111111;
+  unsigned char target = (_m >> 6) & 0b111111;
+  unsigned char promotion = (_m >> 12) & 0b111;
+
+  if(promotion != 0) Piece::set_type(this->state->get_board()[target], Piece::Type::PAWN);
+  this->state->get_board()[start] = this->state->get_board()[target];
+  this->state->get_board()[target] = taken_pieces.at(taken_pieces.size() - 1);
+
+  moves.pop_back();
+  taken_pieces.pop_back();
+}
+
+Movement::move Movement::from_uci(const string& _ucir) noexcept {
   char arr[5] = {' ', ' ', ' ', ' ', '-'};
   vector<char> origin;
   vector<char> target;
@@ -72,7 +100,7 @@ unsigned short Movement::from_uci(const string& _ucir) noexcept {
   return us;
 }
 
-string Movement::from_u16(const unsigned short& _us) noexcept {
+string Movement::from_u16(const Movement::move& _us) noexcept {
   string s;
 
   unsigned short origin = _us & 0b111111;

@@ -50,16 +50,6 @@ namespace Piece {
   piece make(Type _type, Color _color) noexcept;
 
   /**
-   * @brief Creates a piece of type \ref Piece::Type::NUL "Type::NUL" and of color \ref Piece::Color::WHITE "Color::WHITE"
-   * \code {.cpp}
-   * Piece::piece piece = make(); // creates a null piece
-   * \endcode
-   * 
-   * @overload
-   */
-  piece make() noexcept;
-
-  /**
    * @brief Creates a piece from its corresponding UCI representation
    * \code {.cpp}
    * Piece::piece piece = make('q'); // creates a black queen
@@ -108,9 +98,11 @@ namespace Piece {
   /**
    * @brief Sets a piece's color
    * @param _p A \ref Piece::piece "piece"
-   * @param type A piece \ref Piece::Color "Color"
+   * @param color A piece \ref Piece::Color "Color"
    */
   void set_color(piece& _p, Color color) noexcept;
+
+  const piece _NULL = 0;
 };
 
 namespace Square {

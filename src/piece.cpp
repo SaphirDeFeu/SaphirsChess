@@ -33,8 +33,6 @@ Piece::piece Piece::make(unsigned char _ucir) noexcept {
   return _p;
 }
 
-Piece::piece Piece::make() noexcept { return make(Type::NUL, Color::WHITE); }
-
 char Piece::get_uci_representation(const Piece::piece& _p) noexcept {
   char code = '-';
   switch(Piece::get_type(_p)) {
