@@ -49,6 +49,11 @@ class Board {
   std::string display() const noexcept;
 
   /**
+   * 
+   */
+  void generate_legal_moves() noexcept;
+
+  /**
    * @brief Makes a move to the board that can be backtracked with \ref Board::unmake_move "Board::unmake_move"
    * @param _m A movement parsed from UCI into the program's trace (see \ref Movement::from_uci "Movement::from_uci()")
    */
@@ -61,6 +66,7 @@ class Board {
 
   private:
   State* state;
+  std::vector<Movement::move> legal_moves = std::vector<Movement::move>();
   /**
    * Tracks all the moves done for each ply during this game
    */

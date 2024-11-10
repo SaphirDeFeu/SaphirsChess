@@ -38,6 +38,13 @@ namespace Piece {
     WHITE = 0b0000,
   };
 
+  enum Flag {
+    /// @brief Flag to check if piece has ever moved
+    HAS_MOVED = 0b10000,
+    /// @brief Flag to check if in check
+    CHECK     = 0b100000,
+  };
+
   /**
    * @brief Creates a piece of type `_type` and color `_color`
    * \code {.cpp}
@@ -89,6 +96,14 @@ namespace Piece {
   Color get_color(const piece& _p) noexcept;
 
   /**
+   * @brief Returns a selected flag of the piece
+   * @param _p A \ref Piece::piece
+   * @param _f Any \ref Piece::Flag
+   * @return The value of said flag
+   */
+  bool get_flag(const piece& _p, Flag _f) noexcept;
+
+  /**
    * @brief Sets a piece's color
    * @param _p A \ref Piece::piece "piece"
    * @param type A piece \ref Piece::Type "Type"
@@ -101,6 +116,14 @@ namespace Piece {
    * @param color A piece \ref Piece::Color "Color"
    */
   void set_color(piece& _p, Color color) noexcept;
+
+  /**
+   * @brief Sets a piece's color
+   * @param _p A \ref Piece::piece "piece"
+   * @param _f A \ref Piece::Flag "flag"
+   * @param value The value of the flag to be set (1-bit only)
+   */
+  void set_flag(piece& _p, Flag _f, int value) noexcept;
 
   const piece _NULL = 0;
 };

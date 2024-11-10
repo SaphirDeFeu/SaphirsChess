@@ -58,6 +58,10 @@ Piece::Color Piece::get_color(const Piece::piece& _p) noexcept {
   return static_cast<Piece::Color>(_p & 0b1000);
 }
 
+bool Piece::get_flag(const Piece::piece& _p, Piece::Flag _f) noexcept {
+  return (_p & _f) != 0;
+}
+
 void Piece::set_type(Piece::piece& _p, Piece::Type type) noexcept {
   _p &= 0b000;
   _p |= static_cast<unsigned char>(type);
@@ -66,6 +70,14 @@ void Piece::set_type(Piece::piece& _p, Piece::Type type) noexcept {
 void Piece::set_color(Piece::piece& _p, Piece::Color color) noexcept {
   _p &= 0b0111;
   _p |= static_cast<unsigned char>(color);
+}
+
+void Piece::set_flag(Piece::piece& _p, Piece::Flag _f, int value) noexcept {
+  unsigned char flag_filter = 0b11111111 ^ _f;
+  _p &= flag_filter;
+  unsigned char val = value * 0b11111111; // converts value from a 1-bit boolean value into either all 1's or all 0's
+  unsigned char or_value = val ^ flag_filter;
+  _p |= or_value;
 }
 
 unsigned char Square::from_vec(vector<char> const &vec) noexcept {
