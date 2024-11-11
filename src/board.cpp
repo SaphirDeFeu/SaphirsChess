@@ -103,7 +103,7 @@ void Board::generate_legal_moves() noexcept {
     if(piece_color != *this->state->get_ply_player()) continue;
 
     switch(piece_type) {
-      
+
       case Piece::Type::PAWN: {
         int row_offset = 8;
         if(piece_color == Piece::Color::BLACK) row_offset *= -1;
@@ -224,15 +224,11 @@ void Board::generate_legal_moves() noexcept {
       default: break;
     }
   }
-
-  std::cout << this->legal_moves.size() << " legal moves." << std::endl;
-  for(size_t i = 0; i < this->legal_moves.size(); i++) {
-    std::string s = Movement::from_u16(this->legal_moves.at(i));
-    std::cout << s << std::endl;
-  }
 }
 
 void Board::make_move(const Movement::move& _m) noexcept {
+  fens.push_back(this->state->to_fen_string());
+
   unsigned char start = _m & 0b111111;
   unsigned char target = (_m >> 6) & 0b111111;
   unsigned char promotion = (_m >> 12) & 0b111;
@@ -248,7 +244,6 @@ void Board::make_move(const Movement::move& _m) noexcept {
     *this->state->get_en_passant() = en_passant_sq;
   }
 
-  taken_pieces.push_back(this->state->get_board()[target]);
   Piece::set_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED, 1);
 
   this->state->get_board()[target] = this->state->get_board()[start];
@@ -256,7 +251,6 @@ void Board::make_move(const Movement::move& _m) noexcept {
   Piece::Type _p_type = static_cast<Piece::Type>(promotion);
   if(_p_type != Piece::Type::NUL) Piece::set_type(this->state->get_board()[target], static_cast<Piece::Type>(promotion));
 
-  moves.push_back(_m);
   unsigned char pc = static_cast<unsigned char>(*this->state->get_ply_player());
   pc ^= 0b1000;
   *this->state->get_ply_player() = static_cast<Piece::Color>(pc);
@@ -270,17 +264,11 @@ void Board::make_move(const Movement::move& _m) noexcept {
 }
 
 void Board::unmake_move() noexcept {
-  Movement::move _m = moves.at(moves.size() - 1);
-  unsigned char start = _m & 0b111111;
-  unsigned char target = (_m >> 6) & 0b111111;
-  unsigned char promotion = (_m >> 12) & 0b111;
+  delete this->state;
+  this->state = new State(fens.at(fens.size() - 1));
 
-  if(promotion != 0) Piece::set_type(this->state->get_board()[target], Piece::Type::PAWN);
-  this->state->get_board()[start] = this->state->get_board()[target];
-  this->state->get_board()[target] = taken_pieces.at(taken_pieces.size() - 1);
-
-  moves.pop_back();
-  taken_pieces.pop_back();
+  fens.pop_back();
+  generate_legal_moves();
 }
 
 Movement::move Movement::from_uci(const string& _ucir) noexcept {
@@ -327,3 +315,13 @@ string Movement::from_u16(const Movement::move& _us) noexcept {
 
   return s;
 }
+
+// ! someone make this work ffs
+
+// int Board::run_test(int depth) noexcept {
+  
+// }
+
+// std::vector<int> Board::run_test(int depth, int i) noexcept {
+  
+// }

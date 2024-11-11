@@ -64,6 +64,13 @@ class Board {
    */
   void unmake_move() noexcept;
 
+  /**
+   * @brief Runs the test suite at a depth of `depth` plies, outputting the number of positions at each ply
+   * @param depth The number of plies to look into
+   * @return Amount of positions found
+   */
+  int run_test(int depth) noexcept;
+
   private:
 
   /**
@@ -76,14 +83,12 @@ class Board {
    */
   void generate_sliding_moves(int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len) noexcept;
 
+  std::vector<int> run_test(int depth, int i) noexcept;
+
   State* state;
   std::vector<Movement::move> legal_moves = std::vector<Movement::move>();
   /**
    * Tracks all the moves done for each ply during this game
    */
-  std::vector<Movement::move> moves = std::vector<Movement::move>();
-  /**
-   * Used in conjunction with \ref Board::moves "Board::moves". Used to track captured pieces for each ply of the game.
-   */
-  std::vector<Piece::piece> taken_pieces = std::vector<Piece::piece>();
+  std::vector<std::string> fens = std::vector<std::string>();
 };
