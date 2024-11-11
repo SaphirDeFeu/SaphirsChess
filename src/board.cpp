@@ -54,8 +54,8 @@ void Board::generate_legal_moves() noexcept {
   this->legal_moves.clear();
 
   for(int sq = 0; sq < 64; sq++) {
-    // int row = (sq >> 3) & 0b111;
-    // int col = sq & 0b111;
+    int row = (sq >> 3) & 0b111;
+    int col = sq & 0b111;
 
     Piece::piece current_piece = this->state->get_board()[sq];
     Piece::Type piece_type = Piece::get_type(current_piece);
@@ -117,6 +117,42 @@ void Board::generate_legal_moves() noexcept {
 
         break;
       }
+      
+      case Piece::Type::KNIGHT: {
+        int row_offsets[8] = { row + 2, row + 2, row + 1, row - 1, row - 2, row - 2, row - 1, row + 1 };
+        int col_offsets[8] = { col - 1, col + 1, col + 2, col + 2, col + 1, col - 1, col - 2, col - 2 };
+
+        // Filter out spaces that go beyond the board's layout
+        for(int i = 0; i < 8; i++) {
+          if(row_offsets[i] > 7 || row_offsets[i] < 0 || col_offsets[i] > 7 || col_offsets[i] < 0) {
+            row_offsets[i] = -1;
+            col_offsets[i] = -1;
+          };
+        }
+
+        // Restrict them into a single array of possibilities
+        int options[8];
+        for(int i = 0; i < 8; i++) {
+          if(row_offsets[i] < 0 || col_offsets[i] < 0) {
+            options[i] = -1;
+            continue;
+          };
+          options[i] = (row_offsets[i] << 3) | col_offsets[i];
+
+          Piece::piece _p = this->state->get_board()[options[i]];
+          if(Piece::get_color(_p) == piece_color && Piece::get_type(_p) != Piece::Type::NUL) options[i] = -1;
+
+          if(Piece::get_type(_p) == Piece::Type::KING && Piece::get_color(_p) != piece_color) Piece::set_flag(_p, Piece::Flag::CHECK, 1);
+        }
+
+        for(int i = 0; i < 8; i++) {
+          if(options[i] == -1) continue;
+          Movement::move mv = (options[i] << 6) | sq;
+          this->legal_moves.push_back(mv);
+        }
+
+        break;
+      }
 
       default: break;
     }
@@ -147,8 +183,6 @@ void Board::make_move(const Movement::move& _m) noexcept {
 
   taken_pieces.push_back(this->state->get_board()[target]);
   Piece::set_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED, 1);
-
-  
 
   this->state->get_board()[target] = this->state->get_board()[start];
   this->state->get_board()[start] = Piece::_NULL;
