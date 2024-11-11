@@ -64,6 +64,7 @@ void Board::generate_legal_moves() noexcept {
     if(piece_color != *this->state->get_ply_player()) continue;
 
     switch(piece_type) {
+      
       case Piece::Type::PAWN: {
         int row_offset = 8;
         if(piece_color == Piece::Color::BLACK) row_offset *= -1;
@@ -153,7 +154,44 @@ void Board::generate_legal_moves() noexcept {
 
         break;
       }
+      
+      case Piece::Type::BISHOP: {
+        int row_offsets[4] = { 1, -1, -1, 1 };
+        int col_offsets[4] = { 1, 1, -1, -1 };
 
+        for(int dir = 0; dir < 4; dir++) {
+          int target = sq;
+          int new_row = row;
+          int new_col = col;
+          for(int i = 0; i < 7; i++) {
+            new_row += row_offsets[dir];
+            new_col += col_offsets[dir];
+            if(new_row < 0 || new_row > 7 || new_col < 0 || new_col > 7) break;
+            target = (new_row << 3) | new_col; // add offsets to reach the target square
+            std::cout << target << " - " << new_row << " - " << new_col << std::endl;
+
+            Piece::piece _p = this->state->get_board()[target];
+            if(Piece::get_type(_p) == Piece::Type::NUL) {
+              Movement::move mv = (target << 6) | sq;
+              this->legal_moves.push_back(mv);
+              continue;
+            }
+
+            // Not an empty space
+            if(Piece::get_color(_p) == piece_color) break;
+            else if(Piece::get_type(_p) == Piece::Type::KING) {
+              Piece::set_flag(_p, Piece::Flag::CHECK, 1);
+              break;
+            } else {
+              Movement::move mv = (target << 6) | sq;
+              this->legal_moves.push_back(mv);
+              break;
+            }
+          }
+        }
+
+        break;
+      }
       default: break;
     }
   }
