@@ -1,3 +1,5 @@
 build/
 .vscode/
 docs/
+
+board_help.txt

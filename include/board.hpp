@@ -49,7 +49,7 @@ class Board {
   std::string display() const noexcept;
 
   /**
-   * 
+   * Generates legal moves of the current position
    */
   void generate_legal_moves() noexcept;
 
@@ -65,6 +65,17 @@ class Board {
   void unmake_move() noexcept;
 
   private:
+
+  /**
+   * @brief Generates sliding moves in accordance to row_offsets and col_offsets. Moves generated will be outputted into \ref Board::legal_moves "Board::legal_moves"
+   * @param row_offsets Must correspond on a square-basis to col_offsets, used to describe offsets to use as a basis for move generating.
+   * @param col_offsets See row_offsets
+   * @param sq The original starting square
+   * @param og_piece The original starting piece
+   * @param len Length of the arrays `row_offsets` and `col_offsets`
+   */
+  void generate_sliding_moves(int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len) noexcept;
+
   State* state;
   std::vector<Movement::move> legal_moves = std::vector<Movement::move>();
   /**
