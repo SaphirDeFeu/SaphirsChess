@@ -50,7 +50,16 @@ string Board::display() const noexcept {
   return s;
 }
 
-void Board::generate_sliding_moves(int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len) noexcept {
+void Board::generate_sliding_moves(
+    State* s,
+    int* row_offsets,
+    int* col_offsets,
+    const int& sq,
+    const Piece::piece& og_piece,
+    int len,
+    std::vector<Movement::move>* legal_moves) noexcept 
+  {
+
   int row = (sq >> 3) & 0b111;
   int col = sq & 0b111;
   Piece::Color piece_color = Piece::get_color(og_piece);
@@ -68,10 +77,10 @@ void Board::generate_sliding_moves(int* row_offsets, int* col_offsets, const int
       if(new_row < 0 || new_row > 7 || new_col < 0 || new_col > 7) break;
 
       target = (new_row << 3) | new_col; // add offsets to reach the target square
-      Piece::piece _p = this->state->get_board()[target];
+      Piece::piece _p = s->get_board()[target];
       if(Piece::get_type(_p) == Piece::Type::NUL) {
         Movement::move mv = (target << 6) | sq;
-        this->legal_moves.push_back(mv);
+        legal_moves->push_back(mv);
         continue;
       }
 
@@ -82,7 +91,7 @@ void Board::generate_sliding_moves(int* row_offsets, int* col_offsets, const int
         break;
       } else {
         Movement::move mv = (target << 6) | sq;
-        this->legal_moves.push_back(mv);
+        legal_moves->push_back(mv);
         break;
       }
     }
@@ -90,17 +99,36 @@ void Board::generate_sliding_moves(int* row_offsets, int* col_offsets, const int
 }
 
 void Board::generate_legal_moves() noexcept {
-  this->legal_moves.clear();
+  this->legal_moves = generate_pseudolegal_moves(this->state);
+  remove_pseudolegal_moves();
+}
+
+void Board::remove_pseudolegal_moves() noexcept {
+  // Pseudo legal moves include :
+  // - Moving into a check
+  // - Leaving your king checked and not doing anything about it
+  // - Moving out of the way of an attack that threatens your king
+
+  // Getting the king
+  State* next_state = new State(this->state);
+  Piece::Color cl = *next_state->get_ply_player();
+  Piece::Color enemy = static_cast<Piece::Color>(static_cast<char>(cl) ^ 0b1000);
+  
+
+}
+
+std::vector<Movement::move> Board::generate_pseudolegal_moves(State* s) noexcept {
+  std::vector<Movement::move> legal_moves;
 
   for(int sq = 0; sq < 64; sq++) {
     int row = (sq >> 3) & 0b111;
     int col = sq & 0b111;
 
-    Piece::piece current_piece = this->state->get_board()[sq];
+    Piece::piece current_piece = s->get_board()[sq];
     Piece::Type piece_type = Piece::get_type(current_piece);
     if(piece_type == Piece::Type::NUL) continue;
     Piece::Color piece_color = Piece::get_color(current_piece);
-    if(piece_color != *this->state->get_ply_player()) continue;
+    if(piece_color != *s->get_ply_player()) continue;
 
     switch(piece_type) {
 
@@ -113,32 +141,32 @@ void Board::generate_legal_moves() noexcept {
         int squares_to_check[4] = { sq + row_offset, sq + row_offset * 2, sq + row_offset - col_offset, sq + row_offset + col_offset };
         int squares_allowed[4] = { true, true, false, false };
 
-        if(this->state->get_board()[squares_to_check[1]] != Piece::Type::NUL) { // no free space 2 steps ahead of us
+        if(s->get_board()[squares_to_check[1]] != Piece::Type::NUL) { // no free space 2 steps ahead of us
           squares_allowed[1] = false;
 
-          if(this->state->get_board()[squares_to_check[0]] != Piece::Type::NUL) squares_allowed[0] = false; // no free space 1 step ahead of us
+          if(s->get_board()[squares_to_check[0]] != Piece::Type::NUL) squares_allowed[0] = false; // no free space 1 step ahead of us
         }
 
         if(Piece::get_flag(current_piece, Piece::Flag::HAS_MOVED)) { // already moved, can't move 2 spaces ahead
           squares_allowed[1] = false;
         }
 
-        Piece::piece left_piece = this->state->get_board()[squares_to_check[2]];
+        Piece::piece left_piece = s->get_board()[squares_to_check[2]];
         if(Piece::get_color(left_piece) != piece_color && Piece::get_type(left_piece) != Piece::Type::NUL) {
           squares_allowed[2] = true;
           if(Piece::get_type(left_piece) == Piece::Type::KING) Piece::set_flag(left_piece, Piece::Flag::CHECK, 1);
         }
-        if(squares_to_check[2] == *this->state->get_en_passant()) {
-          if(Piece::get_color(this->state->get_board()[squares_to_check[2] + row_offset]) != piece_color) squares_allowed[2] = true;
+        if(squares_to_check[2] == *s->get_en_passant()) {
+          if(Piece::get_color(s->get_board()[squares_to_check[2] + row_offset]) != piece_color) squares_allowed[2] = true;
         }
 
-        Piece::piece right_piece = this->state->get_board()[squares_to_check[3]];
+        Piece::piece right_piece = s->get_board()[squares_to_check[3]];
         if(Piece::get_color(right_piece) != piece_color && Piece::get_type(right_piece) != Piece::Type::NUL) {
           squares_allowed[3] = true;
           if(Piece::get_type(right_piece) == Piece::Type::KING) Piece::set_flag(right_piece, Piece::Flag::CHECK, 1);
         }
-        if(squares_to_check[3] == *this->state->get_en_passant()) {
-          if(Piece::get_color(this->state->get_board()[squares_to_check[3] + row_offset]) != piece_color) squares_allowed[3] = true;
+        if(squares_to_check[3] == *s->get_en_passant()) {
+          if(Piece::get_color(s->get_board()[squares_to_check[3] + row_offset]) != piece_color) squares_allowed[3] = true;
         }
 
         // Check if we aren't going outside the board, by checking if all three of those moves are on the same row. If not, one must have somehow wrapped around the board
@@ -152,7 +180,7 @@ void Board::generate_legal_moves() noexcept {
           int target = squares_to_check[i];
           int origin = sq;
           Movement::move mv = (target << 6) | origin;
-          this->legal_moves.push_back(mv);
+          legal_moves.push_back(mv);
         }
 
         break;
@@ -179,7 +207,7 @@ void Board::generate_legal_moves() noexcept {
           };
           options[i] = (row_offsets[i] << 3) | col_offsets[i];
 
-          Piece::piece _p = this->state->get_board()[options[i]];
+          Piece::piece _p = s->get_board()[options[i]];
           if(Piece::get_color(_p) == piece_color && Piece::get_type(_p) != Piece::Type::NUL) options[i] = -1;
 
           if(Piece::get_type(_p) == Piece::Type::KING && Piece::get_color(_p) != piece_color) Piece::set_flag(_p, Piece::Flag::CHECK, 1);
@@ -188,7 +216,7 @@ void Board::generate_legal_moves() noexcept {
         for(int i = 0; i < 8; i++) {
           if(options[i] == -1) continue;
           Movement::move mv = (options[i] << 6) | sq;
-          this->legal_moves.push_back(mv);
+          legal_moves.push_back(mv);
         }
 
         break;
@@ -197,33 +225,59 @@ void Board::generate_legal_moves() noexcept {
       case Piece::Type::BISHOP: {
         int row_offsets[4] = { 1, -1, -1, 1 };
         int col_offsets[4] = { 1, 1, -1, -1 };
-        generate_sliding_moves(row_offsets, col_offsets, sq, current_piece, 4);
+        generate_sliding_moves(s, row_offsets, col_offsets, sq, current_piece, 4, &legal_moves);
         break;
       }
       
       case Piece::Type::ROOK: {
         int row_offsets[4] = { 1, 0, -1, 0 };
         int col_offsets[4] = { 0, 1, 0, -1 };
-        generate_sliding_moves(row_offsets, col_offsets, sq, current_piece, 4);
+        generate_sliding_moves(s, row_offsets, col_offsets, sq, current_piece, 4, &legal_moves);
         break;
       }
       
       case Piece::Type::QUEEN: {
         int row_offsets[8] = { 1, 0, -1, 0, 1, -1, -1, 1 };
         int col_offsets[8] = { 0, 1, 0, -1, 1, 1, -1, -1 };
-        generate_sliding_moves(row_offsets, col_offsets, sq, current_piece, 8);
+        generate_sliding_moves(s, row_offsets, col_offsets, sq, current_piece, 8, &legal_moves);
         break;
       }
 
       case Piece::Type::KING: {
         int row_offsets[8] = { 1, 0, -1, 0, 1, -1, -1, 1 };
         int col_offsets[8] = { 0, 1, 0, -1, 1, 1, -1, -1 };
-        generate_sliding_moves(row_offsets, col_offsets, sq, current_piece, 8);
+        generate_sliding_moves(s, row_offsets, col_offsets, sq, current_piece, 8, &legal_moves);
+
+        int queenside = 0b01;
+        int color = 0b10;
+
+        if(piece_color == Piece::Color::BLACK) color = 0;
+        
+        int c_square = (row << 3) | 2;
+        int g_square = (row << 3) | 6;
+
+        if(s->get_castle_rights()[color | queenside]) {
+          if(
+            Piece::get_type(s->get_board()[sq - 1]) != Piece::Type::NUL ||
+            Piece::get_type(s->get_board()[sq - 2]) != Piece::Type::NUL ||
+            Piece::get_type(s->get_board()[sq - 3]) != Piece::Type::NUL) break;
+          Movement::move mv = (c_square << 6) | sq;
+          legal_moves.push_back(mv);
+        }
+        if(s->get_castle_rights()[color]) {
+          if(
+            Piece::get_type(s->get_board()[sq + 1]) != Piece::Type::NUL ||
+            Piece::get_type(s->get_board()[sq + 2]) != Piece::Type::NUL) break;
+          Movement::move mv = (g_square << 6) | sq;
+          legal_moves.push_back(mv);
+        }
         break;
       }
       default: break;
     }
   }
+
+  return legal_moves;
 }
 
 // ! Oh boy I do sure hope there are *no memory leaks* :D
@@ -319,12 +373,17 @@ string Movement::from_u16(const Movement::move& _us) noexcept {
   return s;
 }
 
-// ! someone make this work ffs
+size_t Board::perft(size_t depth) noexcept {
+  if(depth == 0) return 1;
 
-// int Board::run_test(int depth) noexcept {
-  
-// }
+  size_t positions = 0;
 
-// std::vector<int> Board::run_test(int depth, int i) noexcept {
-  
-// }
+  size_t SIZE = this->legal_moves.size();
+  for(size_t i = 0; i < SIZE; i++) {
+    make_move(this->legal_moves.at(i));
+    positions += perft(depth - 1);
+    unmake_move();
+  }
+
+  return positions;
+}

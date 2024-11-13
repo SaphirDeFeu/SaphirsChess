@@ -49,7 +49,7 @@ class Board {
   std::string display() const noexcept;
 
   /**
-   * Generates legal moves of the current position
+   * @brief Generates legal moves for this position
    */
   void generate_legal_moves() noexcept;
 
@@ -69,21 +69,33 @@ class Board {
    * @param depth The number of plies to look into
    * @return Amount of positions found
    */
-  int run_test(int depth) noexcept;
+  size_t perft(size_t depth) noexcept;
 
   private:
 
   /**
    * @brief Generates sliding moves in accordance to row_offsets and col_offsets. Moves generated will be outputted into \ref Board::legal_moves "Board::legal_moves"
+   * @param s A pointer to the state to generate the moves from
    * @param row_offsets Must correspond on a square-basis to col_offsets, used to describe offsets to use as a basis for move generating.
    * @param col_offsets See row_offsets
    * @param sq The original starting square
    * @param og_piece The original starting piece
    * @param len Length of the arrays `row_offsets` and `col_offsets`
+   * @param legal_moves A pointer to a vector to store the moves into
    */
-  void generate_sliding_moves(int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len) noexcept;
+  void generate_sliding_moves(State* s, int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len, std::vector<Movement::move>* legal_moves) noexcept;
 
-  std::vector<int> run_test(int depth, int i) noexcept;
+  /**
+   * @brief Removes pseudo legal moves from the available legal moves
+   */
+  void remove_pseudolegal_moves();
+
+  /**
+   * @brief Generates pseudo legal moves of the current position
+   * @param s A pointer to a State to analyse
+   * @return The pseudolegal moves of the position
+   */
+  std::vector<Movement::move> generate_pseudolegal_moves(State* s) noexcept;
 
   State* state;
   std::vector<Movement::move> legal_moves = std::vector<Movement::move>();
