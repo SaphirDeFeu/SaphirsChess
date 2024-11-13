@@ -25,6 +25,19 @@ class State {
   State(const std::string& fen_string) noexcept;
 
   /**
+   * @brief Duplicates a State object from a pointer to one
+   * \code {.cpp}
+   * State state1(STARTING_POSITION_FEN);
+   * 
+   * State state2(&state1);
+   * \endcode 
+   * 
+   * @param other Other state to copy data from
+   * @note Does not create a reference to the other state, only copies its values!
+   */
+  State(State* other) noexcept;
+
+  /**
    * @brief Creates an object using \ref STARTING_POSITION_FEN "STARTING_POSITION_FEN"
    * \code {.cpp}
    * State state();
@@ -131,7 +144,7 @@ class State {
 
   // ----------------------------------
 
-  private:
+  protected:
   /**
    * @brief The board object. An array of pieces of length 64. Heap-allocated upon construction. Deallocated upon destruction.
    */

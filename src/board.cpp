@@ -226,8 +226,11 @@ void Board::generate_legal_moves() noexcept {
   }
 }
 
+// ! Oh boy I do sure hope there are *no memory leaks* :D
+
 void Board::make_move(const Movement::move& _m) noexcept {
-  fens.push_back(this->state->to_fen_string());
+  states.push_back(this->state);
+  this->state = new State(this->state);
 
   unsigned char start = _m & 0b111111;
   unsigned char target = (_m >> 6) & 0b111111;
@@ -265,9 +268,9 @@ void Board::make_move(const Movement::move& _m) noexcept {
 
 void Board::unmake_move() noexcept {
   delete this->state;
-  this->state = new State(fens.at(fens.size() - 1));
+  this->state = states.at(states.size() - 1);
 
-  fens.pop_back();
+  states.pop_back();
   generate_legal_moves();
 }
 

@@ -90,5 +90,5 @@ class Board {
   /**
    * Tracks all the moves done for each ply during this game
    */
-  std::vector<std::string> fens = std::vector<std::string>();
+  std::vector<State*> states = std::vector<State*>();
 };

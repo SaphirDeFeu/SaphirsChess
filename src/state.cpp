@@ -112,6 +112,24 @@ State::State(const string& fen_string) noexcept {
   this->fullmove = fullmoves;
 };
 
+State::State(State* other) noexcept {
+  this->en_passant = *(other->get_en_passant());
+  this->fullmove = *(other->get_fullmove_clock());
+  this->halfmove = *(other->get_halfmove_clock());
+  this->ply_player = *(other->get_ply_player());
+
+  this->board = new Piece::piece[64];
+  this->castle_rights = new bool[4];
+
+  for(size_t i = 0; i < 64; i++) {
+    this->board[i] = (other->get_board())[i];
+  }
+
+  for(size_t i = 0; i < 4; i++) {
+    this->castle_rights[i] = (other->get_castle_rights())[i];
+  }
+}
+
 State::~State() noexcept {
   delete[] (this->board);
   delete[] (this->castle_rights);
