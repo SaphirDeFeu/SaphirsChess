@@ -176,7 +176,7 @@ string State::to_fen_string() const noexcept {
   if(this->castle_rights[2] == true) tmp_castling += 'k';
   if(this->castle_rights[3] == true) tmp_castling += 'q';
   
-  if(tmp_castling.empty()) fen += '-';
+  if(tmp_castling.empty()) fen += "- ";
   else fen += tmp_castling + ' ';
 
   vector<char> vec_c = Square::from_byte(this->en_passant);
