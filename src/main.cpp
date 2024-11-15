@@ -10,11 +10,15 @@ int main() {
   Board board;
 
   std::cout << board.display() << std::endl;
-  int depth = 3;
-  std::cout << board.perft(depth) << std::endl;
-  // board.make_move(Movement::from_uci("e2e4"));
-  // std::cout << board.display() << std::endl;
-  // board.unmake_move();
-  // std::cout << board.display() << std::endl;
+  // int depth = 3;
+  // std::cout << board.perft(depth) << std::endl;
+  board.make_move(Movement::from_uci("e2e4"));
+  std::cout << board.display() << std::endl;
+  board.make_move(Movement::from_uci("f1d3"));
+  std::cout << board.display() << std::endl;
+  board.make_move(Movement::from_uci("g1f3"));
+  std::cout << board.display() << std::endl;
+  board.make_move(Movement::from_uci("e1g1"));
+  std::cout << board.display() << std::endl;
   return 0;
 }

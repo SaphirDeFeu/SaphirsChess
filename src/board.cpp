@@ -110,9 +110,9 @@ void Board::remove_pseudolegal_moves() noexcept {
   // - Moving out of the way of an attack that threatens your king
 
   // Getting the king
-  State* next_state = new State(this->state);
-  Piece::Color cl = *next_state->get_ply_player();
-  Piece::Color enemy = static_cast<Piece::Color>(static_cast<char>(cl) ^ 0b1000);
+  // State* next_state = new State(this->state);
+  // Piece::Color cl = *next_state->get_ply_player();
+  // Piece::Color enemy = static_cast<Piece::Color>(static_cast<char>(cl) ^ 0b1000);
   
 
 }
@@ -249,9 +249,9 @@ std::vector<Movement::move> Board::generate_pseudolegal_moves(State* s) noexcept
         generate_sliding_moves(s, row_offsets, col_offsets, sq, current_piece, 8, &legal_moves);
 
         int queenside = 0b01;
-        int color = 0b10;
+        int color = 0;
 
-        if(piece_color == Piece::Color::BLACK) color = 0;
+        if(piece_color == Piece::Color::BLACK) color = 0b10;
         
         int c_square = (row << 3) | 2;
         int g_square = (row << 3) | 6;
@@ -299,6 +299,42 @@ void Board::make_move(const Movement::move& _m) noexcept {
   if(abs(row_difference) == 2 && Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN) {
     int en_passant_sq = start + (row_difference / 2 * 8); // divide by 2 to get 1 row difference, multiply by 8 to get overall add/sub squares
     *this->state->get_en_passant() = en_passant_sq;
+  }
+
+  int col_difference = (target & 0b111) - (start & 0b111);
+
+  // Castling
+  if(abs(col_difference) == 2 && Piece::get_type(this->state->get_board()[start]) == Piece::Type::KING) {
+    unsigned char target_col = target & 0b111;
+    unsigned char rook_col = 0;
+    unsigned char rook_dest_col = 3;
+    if(target_col == 6) { rook_col = 7; rook_dest_col = 5; }
+
+    unsigned char rook_square = (target & 0b111000) | rook_col;
+    unsigned char rook_dest_square = (target & 0b111000) | rook_dest_col;
+
+    short color = static_cast<short>(Piece::get_color(this->state->get_board()[start])) >> 2;
+    color ^= 0b10;
+
+    this->state->get_castle_rights()[color] = false;
+    this->state->get_castle_rights()[color | 1] = false;
+
+    this->state->get_board()[rook_dest_square] = this->state->get_board()[rook_square];
+    this->state->get_board()[rook_square] = Piece::_NULL;
+
+    Piece::set_flag(this->state->get_board()[rook_dest_square], Piece::Flag::HAS_MOVED, 1); 
+  }
+
+  if(Piece::get_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED) == 0 &&
+    Piece::get_type(this->state->get_board()[start]) == Piece::Type::ROOK) {
+      short color = static_cast<short>(Piece::get_color(this->state->get_board()[start])) >> 2;
+      color ^= 0b10;
+      unsigned char col = start & 0b111;
+
+      short queenside = 0;
+      if(col == 0) queenside = 1;
+
+      this->state->get_castle_rights()[color | queenside] = false;
   }
 
   Piece::set_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED, 1);

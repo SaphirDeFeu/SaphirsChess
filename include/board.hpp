@@ -88,7 +88,7 @@ class Board {
   /**
    * @brief Removes pseudo legal moves from the available legal moves
    */
-  void remove_pseudolegal_moves();
+  void remove_pseudolegal_moves() noexcept;
 
   /**
    * @brief Generates pseudo legal moves of the current position
