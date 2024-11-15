@@ -297,8 +297,8 @@ void Board::make_move(const Movement::move& _m) noexcept {
 
   bool reset_halfmove = false;
 
-  reset_halfmove = reset_halfmove || (this->state->get_board()[target] != Piece::Type::NUL);
-  reset_halfmove = reset_halfmove || (this->state->get_board()[start] != Piece::Type::PAWN);
+  reset_halfmove = reset_halfmove || (Piece::get_type(this->state->get_board()[target]) != Piece::Type::NUL);
+  reset_halfmove = reset_halfmove || (Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN);
 
   int row_difference = ((target >> 3) & 0b111) - ((start >> 3) & 0b111);
   if(abs(row_difference) == 2 && Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN) {
