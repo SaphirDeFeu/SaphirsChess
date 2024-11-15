@@ -1,5 +1,6 @@
 #include"board.hpp"
 #include<vector>
+#include<algorithm>
 #include<iostream>
 #include<cmath>
 
@@ -249,27 +250,27 @@ std::vector<Movement::move> Board::generate_pseudolegal_moves(State* s) noexcept
         generate_sliding_moves(s, row_offsets, col_offsets, sq, current_piece, 8, &legal_moves);
 
         int queenside = 0b01;
-        int color = 0;
-
-        if(piece_color == Piece::Color::BLACK) color = 0b10;
+        int color = static_cast<int>(piece_color) >> 2;
         
         int c_square = (row << 3) | 2;
         int g_square = (row << 3) | 6;
 
         if(s->get_castle_rights()[color | queenside]) {
           if(
-            Piece::get_type(s->get_board()[sq - 1]) != Piece::Type::NUL ||
-            Piece::get_type(s->get_board()[sq - 2]) != Piece::Type::NUL ||
-            Piece::get_type(s->get_board()[sq - 3]) != Piece::Type::NUL) break;
-          Movement::move mv = (c_square << 6) | sq;
-          legal_moves.push_back(mv);
+            Piece::get_type(s->get_board()[sq - 1]) == Piece::Type::NUL &&
+            Piece::get_type(s->get_board()[sq - 2]) == Piece::Type::NUL &&
+            Piece::get_type(s->get_board()[sq - 3]) == Piece::Type::NUL) {
+              Movement::move mv = (c_square << 6) | sq;
+              legal_moves.push_back(mv);
+            }
         }
         if(s->get_castle_rights()[color]) {
           if(
-            Piece::get_type(s->get_board()[sq + 1]) != Piece::Type::NUL ||
-            Piece::get_type(s->get_board()[sq + 2]) != Piece::Type::NUL) break;
-          Movement::move mv = (g_square << 6) | sq;
-          legal_moves.push_back(mv);
+            Piece::get_type(s->get_board()[sq + 1]) == Piece::Type::NUL &&
+            Piece::get_type(s->get_board()[sq + 2]) == Piece::Type::NUL) {
+              Movement::move mv = (g_square << 6) | sq;
+              legal_moves.push_back(mv);
+            }
         }
         break;
       }
@@ -283,6 +284,10 @@ std::vector<Movement::move> Board::generate_pseudolegal_moves(State* s) noexcept
 // ! Oh boy I do sure hope there are *no memory leaks* :D
 
 void Board::make_move(const Movement::move& _m) noexcept {
+  Movement::move root_move = _m & 0b111111111111; // Remove promotion part
+  // Basically means "if not in legal_moves"
+  if(std::find(this->legal_moves.begin(), this->legal_moves.end(), root_move) == this->legal_moves.end()) return;
+
   states.push_back(this->state);
   this->state = new State(this->state);
 
@@ -314,7 +319,6 @@ void Board::make_move(const Movement::move& _m) noexcept {
     unsigned char rook_dest_square = (target & 0b111000) | rook_dest_col;
 
     short color = static_cast<short>(Piece::get_color(this->state->get_board()[start])) >> 2;
-    color ^= 0b10;
 
     this->state->get_castle_rights()[color] = false;
     this->state->get_castle_rights()[color | 1] = false;
@@ -328,7 +332,6 @@ void Board::make_move(const Movement::move& _m) noexcept {
   if(Piece::get_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED) == 0 &&
     Piece::get_type(this->state->get_board()[start]) == Piece::Type::ROOK) {
       short color = static_cast<short>(Piece::get_color(this->state->get_board()[start])) >> 2;
-      color ^= 0b10;
       unsigned char col = start & 0b111;
 
       short queenside = 0;
