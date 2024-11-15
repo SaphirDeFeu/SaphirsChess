@@ -304,6 +304,8 @@ void Board::make_move(const Movement::move& _m) noexcept {
   if(abs(row_difference) == 2 && Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN) {
     int en_passant_sq = start + (row_difference / 2 * 8); // divide by 2 to get 1 row difference, multiply by 8 to get overall add/sub squares
     *this->state->get_en_passant() = en_passant_sq;
+  } else {
+    *this->state->get_en_passant() = Square::NULL_SQUARE;
   }
 
   int col_difference = (target & 0b111) - (start & 0b111);
