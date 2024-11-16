@@ -1,14 +1,15 @@
+#pragma once
 #include<vector>
 
 /**
  * @brief Namespaced used to interpret and clear piece data.
  * \code {.cpp}
- * Piece piece();
+ * Piece::piece p = Piece::make();
  * \endcode
  * 
- * @see Piece::Piece(Piece::Type _type, Piece::Color _color)
- * @see Piece::Piece()
- * @see Piece::Piece(unsigned char _ucir)
+ * @see Piece::make(Piece::Type _type, Piece::Color _color)
+ * @see Piece::make()
+ * @see Piece::make(unsigned char _ucir)
  */
 
 namespace Piece {

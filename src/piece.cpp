@@ -16,7 +16,7 @@ Piece::piece Piece::make(unsigned char _ucir) noexcept {
   Piece::piece _p = 0;
 
   if('a' <= _ucir && _ucir <= 'z') {
-    _ucir = (unsigned char) (((int) _ucir) - 32);
+    _ucir = static_cast<unsigned char>(static_cast<int>(_ucir) - 32);
     Piece::set_color(_p, Piece::Color::BLACK);
   };
 
@@ -42,7 +42,7 @@ char Piece::get_uci_representation(const Piece::piece& _p) noexcept {
     case Piece::Type::ROOK: code = 'r'; break;
     case Piece::Type::QUEEN: code = 'q'; break;
     case Piece::Type::KING: code = 'k'; break;
-    default: return code; break;
+    default: return code;
   }
 
   if(Piece::get_color(_p) == Piece::Color::WHITE) code -= ('a'-'A');
