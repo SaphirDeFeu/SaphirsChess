@@ -1,8 +1,5 @@
-build/
 .vscode/
 .idea/
-docs/
 
-board_help.txt
-compile.bat
-run.bat
+docs/
+cmake-build-debug/
