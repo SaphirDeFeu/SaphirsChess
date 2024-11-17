@@ -3,6 +3,8 @@
 #include<algorithm>
 #include<iostream>
 #include<cmath>
+#include<iterator>
+#include <utility>
 
 using std::string;
 using std::vector;
@@ -111,10 +113,42 @@ void Board::remove_pseudolegal_moves() noexcept {
   // - Moving out of the way of an attack that threatens your king
 
   // Getting the king
-  // State* next_state = new State(this->state);
-  // Piece::Color cl = *next_state->get_ply_player();
-  // Piece::Color enemy = static_cast<Piece::Color>(static_cast<char>(cl) ^ 0b1000);
-  
+  State* next_state = new State(this->state);
+  Piece::Color cl = *next_state->get_ply_player();
+  int king_square = Square::NULL_SQUARE;
+  for(int i = 0; i < 64; i++) {
+    if(Piece::piece _p = this->state->get_board()[i]; Piece::get_type(_p) == Piece::Type::KING) {
+      king_square = i;
+      break;
+    }
+  }
+
+  auto enemy = static_cast<Piece::Color>(static_cast<char>(cl) ^ 0b1000);
+  *next_state->get_ply_player() = enemy;
+  std::vector<Movement::move> enemy_moves = generate_pseudolegal_moves(next_state);
+  std::vector<unsigned short> attacked_squares = std::vector<unsigned short>();
+
+  for(unsigned short enemy_move : enemy_moves) {
+    int square = (enemy_move >> 6) & 0b111111;
+    attacked_squares.push_back(square);
+  }
+
+  // Stops king from moving into attacked squares
+  for(int i = 0; i < this->legal_moves.size(); i++) {
+    int origin = this->legal_moves.at(i) & 0b111111;
+    if(origin != king_square) continue;
+
+    int target = (this->legal_moves.at(i) >> 6) & 0b111111;
+    auto index = std::find(attacked_squares.begin(), attacked_squares.end(), target);
+    if(index != attacked_squares.end()) {
+      // Convert to const iterator because C++ is a bitch
+      auto const_index = std::as_const(attacked_squares).begin() + std::distance(attacked_squares.begin(), index);
+      // The target square is an attacked square
+      this->legal_moves.erase(const_index);
+    }
+  }
+
+
 
 }
 

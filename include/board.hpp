@@ -84,7 +84,7 @@ class Board {
    * @param len Length of the arrays `row_offsets` and `col_offsets`
    * @param legal_moves A pointer to a vector to store the moves into
    */
-  void generate_sliding_moves(State* s, int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len, std::vector<Movement::move>* legal_moves) noexcept;
+  static void generate_sliding_moves(State* s, int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len, std::vector<Movement::move>* legal_moves) noexcept;
 
   /**
    * @brief Removes pseudo legal moves from the available legal moves
