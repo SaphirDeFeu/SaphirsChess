@@ -46,7 +46,7 @@ State::State(const string& fen_string) noexcept {
     if(current_character >= '1' && current_character <= '8') { // we're tracking a number
       int num = current_character - '0'; // int conversion (trust me bro)
       for(int i = 0; i < num; i++) {
-        this->board[index] = Piece::_NULL;
+        this->board[index] = Piece::NIL;
         index++;
       }
       string_index++;
@@ -90,6 +90,7 @@ State::State(const string& fen_string) noexcept {
         case 'Q': this->castle_rights[1] = true; break;
         case 'k': this->castle_rights[2] = true; break;
         case 'q': this->castle_rights[3] = true; break;
+        default: break;
       }
     }
   }
@@ -106,8 +107,8 @@ State::State(const string& fen_string) noexcept {
     this->en_passant = Square::from_vec(vector<char>('-'));
   }
 
-  unsigned short halfmoves = static_cast<unsigned short>(std::stoul(stages.at(4)));
-  unsigned int fullmoves = static_cast<unsigned int>(std::stoul(stages.at(5)));
+  auto halfmoves = static_cast<unsigned short>(std::stoul(stages.at(4)));
+  auto fullmoves = static_cast<unsigned int>(std::stoul(stages.at(5)));
   this->halfmove = halfmoves;
   this->fullmove = fullmoves;
 };
@@ -136,7 +137,7 @@ State::~State() noexcept {
 }
 
 string State::to_fen_string() const noexcept {
-  string fen = "";
+  string fen;
 
   int index = 56;
   while(true) {
@@ -149,7 +150,7 @@ string State::to_fen_string() const noexcept {
         index++;
         unsigned char tmp = Piece::get_uci_representation(this->board[index]);
         if(tmp != '-' || (index % 8 == 0 && start != index)) {
-          fen += ((char) whitespaces) + '0';
+          fen += static_cast<char>(whitespaces) + '0';
           index--;
           break;
         }
@@ -170,7 +171,7 @@ string State::to_fen_string() const noexcept {
   if(this->ply_player == Piece::Color::WHITE) fen += " w ";
   else fen += " b ";
 
-  string tmp_castling = "";
+  string tmp_castling;
   if(this->castle_rights[0] == true) tmp_castling += 'K';
   if(this->castle_rights[1] == true) tmp_castling += 'Q';
   if(this->castle_rights[2] == true) tmp_castling += 'k';

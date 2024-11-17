@@ -1,3 +1,6 @@
+#ifndef PIECE_HPP
+#define PIECE_HPP
+
 #pragma once
 #include<vector>
 
@@ -126,7 +129,7 @@ namespace Piece {
    */
   void set_flag(piece& _p, Flag _f, int value) noexcept;
 
-  const piece _NULL = 0;
+  constexpr piece NIL = 0;
 };
 
 namespace Square {
@@ -159,5 +162,7 @@ namespace Square {
   unsigned char from_vec(std::vector<char> const &vec) noexcept;
 
   /// @brief An unsigned 8-bit integer that is always converted to `-` when using \ref Square::from_byte(unsigned char const& byte) "Square::from_byte(NULL_SQUARE)"
-  const unsigned char NULL_SQUARE = 0b1000000;
+  constexpr unsigned char NULL_SQUARE = 0b1000000;
 }
+
+#endif

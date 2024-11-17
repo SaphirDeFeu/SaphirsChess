@@ -1,3 +1,6 @@
+#ifndef BOARD_HPP
+#define BOARD_HPP
+
 #pragma once
 #include<string>
 #include"state.hpp"
@@ -19,7 +22,7 @@ namespace Movement {
   move from_uci(const std::string& _ucir) noexcept;
 
   /**
-   * @brief Converts this program's chosen movement representation to human readable UCI notation
+   * @brief Converts this program's chosen movement representation to human-readable UCI notation
    * \code {.cpp}
    * unsigned short u = 0b0000011100001100; // see Movement::from_uci(const std::string& _ucir)
    * std::string s = Movement::from_u16(u);
@@ -35,19 +38,19 @@ namespace Movement {
  */
 class Board {
   public:
-  Board(const std::string& fen_string) noexcept;
-  Board() noexcept : Board(STARTING_POSITION_FEN) {};
+  explicit Board(const std::string& fen_string) noexcept;
+  Board() noexcept : Board(State::STARTING_POSITION_FEN) {};
   ~Board() noexcept;
   /**
    * @brief Calculates a FEN string from the current state
    * @return a FEN string
    */
-  std::string get_fen() const noexcept;
+  [[nodiscard]] std::string get_fen() const noexcept;
   /**
    * @brief Creates a nice-looking* string of the current state
    * @return the string corresponding to the current state
    */
-  std::string display() const noexcept;
+  [[nodiscard]] std::string display() const noexcept;
 
   /**
    * @brief Generates legal moves for this position
@@ -84,7 +87,7 @@ class Board {
    * @param len Length of the arrays `row_offsets` and `col_offsets`
    * @param legal_moves A pointer to a vector to store the moves into
    */
-  static void generate_sliding_moves(State* s, int* row_offsets, int* col_offsets, const int& sq, const Piece::piece& og_piece, int len, std::vector<Movement::move>* legal_moves) noexcept;
+  static void generate_sliding_moves(const State* s, const int* row_offsets, const int* col_offsets, const int& sq, const Piece::piece& og_piece, int len, std::vector<Movement::move>* legal_moves) noexcept;
 
   /**
    * @brief Removes pseudo legal moves from the available legal moves
@@ -96,7 +99,7 @@ class Board {
    * @param s A pointer to a State to analyse
    * @return The pseudolegal moves of the position
    */
-  std::vector<Movement::move> generate_pseudolegal_moves(State* s) noexcept;
+  static std::vector<Movement::move> generate_pseudolegal_moves(State* s) noexcept;
 
   State* state;
   std::vector<Movement::move> legal_moves = std::vector<Movement::move>();
@@ -105,3 +108,5 @@ class Board {
    */
   std::vector<State*> states = std::vector<State*>();
 };
+
+#endif

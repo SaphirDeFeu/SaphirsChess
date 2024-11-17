@@ -1,9 +1,9 @@
+#ifndef STATE_HPP
+#define STATE_HPP
+
 #pragma once
 #include<string>
 #include"piece.hpp"
-
-/// The FEN string for a starting position.
-const std::string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /**
  * @brief Class used to store data that can be interpreted from and converted to a FEN string
@@ -23,7 +23,7 @@ class State {
    * 
    * @param fen_string A fen string, in accordance with chess notation
    */
-  State(const std::string& fen_string) noexcept;
+  explicit State(const std::string& fen_string) noexcept;
 
   /**
    * @brief Duplicates a State object from a pointer to one
@@ -36,7 +36,7 @@ class State {
    * @param other Other state to copy data from
    * @note Does not create a reference to the other state, only copies its values!
    */
-  State(State* other) noexcept;
+  explicit State(State* other) noexcept;
 
   /**
    * @brief Creates an object using \ref STARTING_POSITION_FEN "STARTING_POSITION_FEN"
@@ -60,7 +60,7 @@ class State {
    * 
    * @return the corresponding FEN string
    */
-  std::string to_fen_string() const noexcept;
+  [[nodiscard]] std::string to_fen_string() const noexcept;
 
   /**
    * @brief Getter for this object's \ref State::board "board" attribute. \n
@@ -79,7 +79,7 @@ class State {
    * @return A pointer to the first element in this board
    * @note The array ALWAYS has a length of 64 items
    */
-  Piece::piece* get_board() const noexcept;
+  [[nodiscard]] Piece::piece* get_board() const noexcept;
 
   /**
    * @brief Getter for this object's \ref State::ply_player "ply_player" attribute
@@ -106,7 +106,7 @@ class State {
    * @return A pointer to the first element of the castling rights
    * @note The array ALWAYS has a length of 4 items
    */
-  bool* get_castle_rights() const noexcept;
+  [[nodiscard]] bool* get_castle_rights() const noexcept;
 
   /**
    * @brief Getter for this object's \ref State::en_passant "en_passant" attribute
@@ -114,7 +114,7 @@ class State {
    * unsigned char* en_passant = state.get_en_passant();
    * std::vector<char> vec = Square::from_byte(*en_passant);
    * vec.at(0); // The column of the en_passant square
-   * vec.at(1); // The row of the en_passant square (may be a null pointer or error if the en_passant square was a Square::NULL_SQUARE)
+   * vec.at(1); // The row of the en_passant square (can be a null pointer or error if the en_passant square was a Square::NULL_SQUARE)
    * ;// If is a Square::NULL_SQUARE, then vec.at(0) will be '-'
    * \endcode
    * 
@@ -142,6 +142,11 @@ class State {
    * @return A 32-bit unsigned integer
    */
   unsigned int* get_fullmove_clock() noexcept;
+
+ /**
+  * @brief The FEN string for a starting position.
+  */
+ static constexpr std::string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   // ----------------------------------
 
@@ -173,3 +178,5 @@ class State {
    */
   unsigned int fullmove = 1;
 };
+
+#endif

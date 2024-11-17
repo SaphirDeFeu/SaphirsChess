@@ -54,18 +54,18 @@ string Board::display() const noexcept {
 }
 
 void Board::generate_sliding_moves(
-    State* s,
-    int* row_offsets,
-    int* col_offsets,
+  const State* s,
+    const int* row_offsets,
+    const int* col_offsets,
     const int& sq,
     const Piece::piece& og_piece,
-    int len,
+    const int len,
     std::vector<Movement::move>* legal_moves) noexcept 
   {
 
-  int row = (sq >> 3) & 0b111;
-  int col = sq & 0b111;
-  Piece::Color piece_color = Piece::get_color(og_piece);
+  const int row = (sq >> 3) & 0b111;
+  const int col = sq & 0b111;
+  const Piece::Color piece_color = Piece::get_color(og_piece);
 
   for(int dir = 0; dir < len; dir++) {
     int target = sq;
@@ -113,7 +113,7 @@ void Board::remove_pseudolegal_moves() noexcept {
   // - Moving out of the way of an attack that threatens your king
 
   // Getting the king
-  State* next_state = new State(this->state);
+  auto* next_state = new State(this->state);
   Piece::Color cl = *next_state->get_ply_player();
   int king_square = Square::NULL_SQUARE;
   for(int i = 0; i < 64; i++) {
@@ -139,7 +139,7 @@ void Board::remove_pseudolegal_moves() noexcept {
     if(origin != king_square) continue;
 
     int target = (this->legal_moves.at(i) >> 6) & 0b111111;
-    auto index = std::find(attacked_squares.begin(), attacked_squares.end(), target);
+    auto index = std::ranges::find(attacked_squares, target);
     if(index != attacked_squares.end()) {
       // Convert to const iterator because C++ is a bitch
       auto const_index = std::as_const(attacked_squares).begin() + std::distance(attacked_squares.begin(), index);
@@ -248,9 +248,9 @@ std::vector<Movement::move> Board::generate_pseudolegal_moves(State* s) noexcept
           if(Piece::get_type(_p) == Piece::Type::KING && Piece::get_color(_p) != piece_color) Piece::set_flag(_p, Piece::Flag::CHECK, 1);
         }
 
-        for(int i = 0; i < 8; i++) {
-          if(options[i] == -1) continue;
-          Movement::move mv = (options[i] << 6) | sq;
+        for(int option : options) {
+          if(option == -1) continue;
+          Movement::move mv = (option << 6) | sq;
           legal_moves.push_back(mv);
         }
 
@@ -320,23 +320,21 @@ std::vector<Movement::move> Board::generate_pseudolegal_moves(State* s) noexcept
 void Board::make_move(const Movement::move& _m) noexcept {
   Movement::move root_move = _m & 0b111111111111; // Remove promotion part
   // Basically means "if not in legal_moves"
-  if(std::find(this->legal_moves.begin(), this->legal_moves.end(), root_move) == this->legal_moves.end()) return;
+  if(std::ranges::find(this->legal_moves, root_move) == this->legal_moves.end()) return;
 
   states.push_back(this->state);
   this->state = new State(this->state);
 
-  unsigned char start = _m & 0b111111;
-  unsigned char target = (_m >> 6) & 0b111111;
+  const unsigned char start = _m & 0b111111;
+  const unsigned char target = (_m >> 6) & 0b111111;
   unsigned char promotion = (_m >> 12) & 0b111;
 
-  bool reset_halfmove = false;
+  const bool reset_halfmove = Piece::get_type(this->state->get_board()[target]) != Piece::Type::NUL ||
+    Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN;
 
-  reset_halfmove = reset_halfmove || (Piece::get_type(this->state->get_board()[target]) != Piece::Type::NUL);
-  reset_halfmove = reset_halfmove || (Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN);
-
-  int row_difference = ((target >> 3) & 0b111) - ((start >> 3) & 0b111);
+  const int row_difference = (target >> 3 & 0b111) - (start >> 3 & 0b111);
   if(abs(row_difference) == 2 && Piece::get_type(this->state->get_board()[start]) == Piece::Type::PAWN) {
-    int en_passant_sq = start + (row_difference / 2 * 8); // divide by 2 to get 1 row difference, multiply by 8 to get overall add/sub squares
+    const int en_passant_sq = start + (row_difference / 2 * 8); // divide by 2 to get 1 row difference, multiply by 8 to get overall add/sub squares
     *this->state->get_en_passant() = en_passant_sq;
   } else {
     *this->state->get_en_passant() = Square::NULL_SQUARE;
@@ -360,15 +358,15 @@ void Board::make_move(const Movement::move& _m) noexcept {
     this->state->get_castle_rights()[color | 1] = false;
 
     this->state->get_board()[rook_dest_square] = this->state->get_board()[rook_square];
-    this->state->get_board()[rook_square] = Piece::_NULL;
+    this->state->get_board()[rook_square] = Piece::NIL;
 
     Piece::set_flag(this->state->get_board()[rook_dest_square], Piece::Flag::HAS_MOVED, 1); 
   }
 
   if(Piece::get_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED) == 0 &&
     Piece::get_type(this->state->get_board()[start]) == Piece::Type::ROOK) {
-      short color = static_cast<short>(Piece::get_color(this->state->get_board()[start])) >> 2;
-      unsigned char col = start & 0b111;
+      const short color = static_cast<short>(Piece::get_color(this->state->get_board()[start])) >> 2;
+      const unsigned char col = start & 0b111;
 
       short queenside = 0;
       if(col == 0) queenside = 1;
@@ -379,11 +377,11 @@ void Board::make_move(const Movement::move& _m) noexcept {
   Piece::set_flag(this->state->get_board()[start], Piece::Flag::HAS_MOVED, 1);
 
   this->state->get_board()[target] = this->state->get_board()[start];
-  this->state->get_board()[start] = Piece::_NULL;
-  Piece::Type _p_type = static_cast<Piece::Type>(promotion);
+  this->state->get_board()[start] = Piece::NIL;
+  auto _p_type = static_cast<Piece::Type>(promotion);
   if(_p_type != Piece::Type::NUL) Piece::set_type(this->state->get_board()[target], static_cast<Piece::Type>(promotion));
 
-  unsigned char pc = static_cast<unsigned char>(*this->state->get_ply_player());
+  auto pc = static_cast<unsigned char>(*this->state->get_ply_player());
   pc ^= 0b1000;
   *this->state->get_ply_player() = static_cast<Piece::Color>(pc);
 
@@ -435,7 +433,7 @@ string Movement::from_u16(const Movement::move& _us) noexcept {
   unsigned short target = (_us >> 6) & 0b111111;
   unsigned short promotion = (_us >> 12) & 0b111;
   Piece::Type promotion_type = Piece::Type::NUL;
-  if(promotion >= 0 && promotion <= 6) promotion_type = static_cast<Piece::Type>(promotion);
+  if(promotion <= 6) promotion_type = static_cast<Piece::Type>(promotion);
 
   vector<char> o = Square::from_byte(static_cast<unsigned char>(origin));
   vector<char> t = Square::from_byte(static_cast<unsigned char>(target));
