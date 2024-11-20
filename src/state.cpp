@@ -22,8 +22,8 @@ State::State(const string& fen_string) noexcept {
   if(fen_string.empty())
     return;
   
-  this->board = new Piece::piece[64];
-  this->castle_rights = new bool[4];
+  this->board = std::vector<Piece::piece>(64);
+  this->castle_rights = std::vector<bool>(4);
   castle_rights[0] = false;
   castle_rights[1] = false;
   castle_rights[2] = false;
@@ -114,27 +114,19 @@ State::State(const string& fen_string) noexcept {
 };
 
 State::State(State* other) noexcept {
-  this->en_passant = *(other->get_en_passant());
-  this->fullmove = *(other->get_fullmove_clock());
-  this->halfmove = *(other->get_halfmove_clock());
-  this->ply_player = *(other->get_ply_player());
+  this->en_passant = *other->get_en_passant();
+  this->fullmove = *other->get_fullmove_clock();
+  this->halfmove = *other->get_halfmove_clock();
+  this->ply_player = *other->get_ply_player();
 
-  this->board = new Piece::piece[64];
-  this->castle_rights = new bool[4];
+  this->board = std::vector<Piece::piece>(64);
+  this->castle_rights = std::vector<bool>(4);
 
-  for(size_t i = 0; i < 64; i++) {
-    this->board[i] = (other->get_board())[i];
-  }
-
-  for(size_t i = 0; i < 4; i++) {
-    this->castle_rights[i] = (other->get_castle_rights())[i];
-  }
+  std::copy(other->board.begin(), other->board.end(), this->board.begin());
+  std::copy(other->castle_rights.begin(), other->castle_rights.end(), this->castle_rights.begin());
 }
 
-State::~State() noexcept {
-  delete[] (this->board);
-  delete[] (this->castle_rights);
-}
+State::~State() noexcept {}
 
 string State::to_fen_string() const noexcept {
   string fen;

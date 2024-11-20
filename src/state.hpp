@@ -14,7 +14,7 @@
  * @see State::State(const std::string& fen_string) noexcept
  */
 class State {
-  public:
+public:
   /**
    * @brief Creates an object from the specified `fen_string`
    * \code {.cpp}
@@ -67,19 +67,18 @@ class State {
    * \n
    * The index of any square can be calculated using \ref Square::from_vec(const std::vector<char>& vec) "Square::from(const std::vector<char>& vec) noexcept"
    * \code {.cpp}
-   * Piece* board = state.get_board();
+   * std::vector<Piece::piece>* board = state.get_board();
    * std::vector<char> vec();
    * vec.push_back('a');
    * vec.push_back('1');
    * unsigned char index = Square::from_vec(vec); // Get the numerical notation of the A1 square
-   * board[index]; // Gets the piece on the A1 square
+   * board->at(index); // Gets the piece on the A1 square
    * \endcode
    * All items are set to whichever piece was found at that position in the FEN string given upon creation of this State object.
    * 
-   * @return A pointer to the first element in this board
-   * @note The array ALWAYS has a length of 64 items
+   * @return A pointer to the board vector
    */
-  [[nodiscard]] Piece::piece* get_board() const noexcept;
+  std::vector<Piece::piece>* get_board() const noexcept;
 
   /**
    * @brief Getter for this object's \ref State::ply_player "ply_player" attribute
@@ -95,18 +94,17 @@ class State {
   /**
    * @brief Getter for this object's \ref State::castle_rights "castle_rights" attribute.
    * \code {.cpp}
-   * bool* castle_rights = state.get_castle_rights();
-   * castle_rights[0] = true; // Sets castling rights for the white kingside to true
-   * castle_rights[1] = true; // Sets castling rights for the white queenside to true
-   * castle_rights[2] = true; // Sets castling rights for the black kingside to true
-   * castle_rights[3] = true; // Sets castling rights for the black queenside to true
+   * std::vector<bool>* castle_rights = state.get_castle_rights();
+   * castle_rights->at(0) = true; // Sets castling rights for the white kingside to true
+   * castle_rights->at(1) = true; // Sets castling rights for the white queenside to true
+   * castle_rights->at(2) = true; // Sets castling rights for the black kingside to true
+   * castle_rights->at(3) = true; // Sets castling rights for the black queenside to true
    * \endcode
    * By default, all items in `castle_rights` are set to true unless specified otherwise in the FEN string used to generate this State object.
    * 
-   * @return A pointer to the first element of the castling rights
-   * @note The array ALWAYS has a length of 4 items
+   * @return A pointer to the castling rights vector
    */
-  [[nodiscard]] bool* get_castle_rights() const noexcept;
+  std::vector<bool>* get_castle_rights() const noexcept;
 
   /**
    * @brief Getter for this object's \ref State::en_passant "en_passant" attribute
@@ -117,8 +115,7 @@ class State {
    * vec.at(1); // The row of the en_passant square (can be a null pointer or error if the en_passant square was a Square::NULL_SQUARE)
    * ;// If is a Square::NULL_SQUARE, then vec.at(0) will be '-'
    * \endcode
-   * 
-   * 
+   *
    * @return An 8-bit unsigned integer which can be parsed by \ref Square::from_byte(const unsigned char& byte) "Square::from_byte(const unsigned char& byte) noexcept"
    */
   unsigned char* get_en_passant() noexcept;
@@ -146,7 +143,7 @@ class State {
  /**
   * @brief The FEN string for a starting position.
   */
- static constexpr std::string STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+ static constexpr char STARTING_POSITION_FEN[58] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   // ----------------------------------
 
@@ -154,7 +151,7 @@ class State {
   /**
    * @brief The board object. An array of pieces of length 64. Heap-allocated upon construction. Deallocated upon destruction.
    */
-  Piece::piece* board;
+  std::vector<Piece::piece> board;
   /**
    * @brief The player whose turn it is to play. A single number. Stack-allocated.
    */
@@ -164,7 +161,7 @@ class State {
    * Each item is in order of how they would appear in a FEN string. castle_rights[0] is white kingside castle, ...
    * A FEN string specifies castle rights in the `KQkq` order.
    */
-  bool* castle_rights;
+  std::vector<bool> castle_rights;
   /**
    * @brief The current possible en_passant square. By default, unless specified, is \ref Square::NULL_SQUARE "Square::NULL_SQUARE". Stack-allocated.
    */
